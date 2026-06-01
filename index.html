@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>建筑模型坐标查看器</title>
+    <!-- APS Viewer -->
+    <link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.css">
+    <!-- ArcGIS Maps SDK -->
+    <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/dark/main.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="app-header">
+    <div class="header-left">
+        <svg class="app-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"></polygon>
+            <line x1="12" y1="22" x2="12" y2="15.5"></line>
+            <polyline points="22 8.5 12 15.5 2 8.5"></polyline>
+        </svg>
+        <span class="app-title">建筑模型坐标查看器</span>
+    </div>
+    <div class="header-center">
+        <!-- 视图切换 -->
+        <div class="view-tabs">
+            <button class="view-tab active" id="tab-3d">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13">
+                    <path d="M8 1L15 5v6L8 15 1 11V5z"></path>
+                    <path d="M1 5l7 4 7-4M8 9v6"></path>
+                </svg>
+                3D 模型
+            </button>
+            <button class="view-tab" id="tab-map">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13">
+                    <circle cx="8" cy="8" r="6"></circle>
+                    <path d="M2 8h12M8 2c-2 2-3 4-3 6s1 4 3 6M8 2c2 2 3 4 3 6s-1 4-3 6"></path>
+                </svg>
+                卫星地图
+            </button>
+        </div>
+    </div>
+    <div class="header-right">
+        <span id="model-name-header" class="model-name-header"></span>
+        <button id="btn-export" class="btn btn-outline" disabled>⬇ 导出 CSV</button>
+    </div>
+</header>
+
+<main class="app-main">
+
+    <!-- 左侧：上传面板 -->
+    <aside class="sidebar sidebar-left">
+        <div class="sidebar-section">
+            <div class="section-title">上传模型文件</div>
+            <div class="upload-zone" id="upload-zone">
+                <input type="file" id="file-input" accept=".dwg,.rvt,.nwd" hidden>
+                <div class="upload-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                </div>
+                <div class="upload-text">拖放文件到此处</div>
+                <div class="upload-hint">或点击按钮选择</div>
+                <button class="btn btn-primary" id="btn-choose">选择文件</button>
+                <div class="upload-formats">
+                    <span class="fmt-badge">DWG</span>
+                    <span class="fmt-badge">RVT</span>
+                    <span class="fmt-badge">NWD</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="upload-progress" class="upload-progress hidden">
+            <div class="progress-info">
+                <span id="progress-text">准备中...</span>
+                <span id="progress-pct">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="sidebar-section sidebar-models">
+            <div class="section-title">已上传模型</div>
+            <div id="models-list" class="models-list">
+                <div class="models-empty">暂无模型，请上传文件</div>
+            </div>
+        </div>
+
+        <!-- ArcGIS CADLayer URL 输入 -->
+        <div class="sidebar-section">
+            <div class="section-title">ArcGIS 图层 URL</div>
+            <div style="display:flex;gap:6px;margin-bottom:6px">
+                <input id="cadlayer-url" class="geo-input" style="flex:1"
+                       placeholder="https://services.arcgis.com/.../FeatureServer">
+                <button id="btn-load-cadlayer" class="btn btn-primary">加载</button>
+            </div>
+            <div class="geo-hint">
+                在 <a href="https://www.arcgis.com/home/item.html?id=0a42ab366f444842a48381fa756df12e"
+                      target="_blank" style="color:var(--primary)">ArcGIS Online 发布 ↗</a> 后粘贴 Feature Service URL
+            </div>
+        </div>
+
+        <!-- 卫星图位置设置 -->
+        <div class="sidebar-section" id="geo-section">
+            <div class="section-title">
+                卫星地图位置
+                <button id="btn-edit-geo" class="btn-icon" title="设置">
+                    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12">
+                        <path d="M7 11.5l-5 1.5 1.5-5L9.5 2l3.5 3.5z"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="geo-display" class="geo-display">未设置坐标</div>
+            <!-- 折叠输入区域 -->
+            <div id="geo-input-area" class="geo-input-area hidden">
+                <label class="geo-label">
+                    纬度 (Latitude)
+                    <input id="geo-lat" class="geo-input" type="number" step="0.00001" placeholder="-41.2865">
+                </label>
+                <label class="geo-label">
+                    经度 (Longitude)
+                    <input id="geo-lng" class="geo-input" type="number" step="0.00001" placeholder="174.7762">
+                </label>
+                <div class="geo-hint">在 Google Maps 右键点击获取坐标</div>
+                <div style="display:flex;gap:6px;margin-top:8px">
+                    <button id="btn-geo-cancel" class="btn btn-outline" style="flex:1">取消</button>
+                    <button id="btn-geo-save" class="btn btn-primary" style="flex:1">保存</button>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 中间：视图区域 -->
+    <div class="viewer-wrapper">
+
+        <!-- APS 3D Viewer -->
+        <div id="viewer" class="view-pane">
+            <div class="viewer-empty" id="viewer-empty">
+                <svg class="viewer-empty-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1">
+                    <rect x="8" y="20" width="48" height="36" rx="2"></rect>
+                    <path d="M8 28 L32 8 L56 28"></path>
+                    <rect x="24" y="36" width="16" height="20"></rect>
+                </svg>
+                <div class="viewer-empty-title">上传 DWG、RVT 或 NWD 文件</div>
+                <div class="viewer-empty-sub">3D 模型将在此处渲染</div>
+            </div>
+        </div>
+
+        <!-- ArcGIS 卫星地图 -->
+        <div id="map-container" class="view-pane hidden">
+            <div class="map-empty" id="map-empty">
+                <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1"
+                     style="width:60px;height:60px;opacity:.15;margin-bottom:12px">
+                    <circle cx="32" cy="32" r="28"></circle>
+                    <path d="M4 32h56M32 4c-8 6-13 17-13 28s5 22 13 28M32 4c8 6 13 17 13 28s-5 22-13 28"></path>
+                </svg>
+                <div style="color:var(--text-muted);font-size:15px;font-weight:500">ArcGIS 卫星地图</div>
+                <div style="color:var(--text-dim);font-size:12px;margin-top:4px">
+                    在左侧设置坐标后，地图将定位到项目位置
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 右侧：坐标面板 -->
+    <aside class="sidebar sidebar-right">
+        <div class="sidebar-section">
+            <div class="section-title">
+                坐标信息
+                <button id="btn-copy" class="btn-icon" title="复制" disabled>
+                    <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13">
+                        <path d="M4 2a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V2zm2-1a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1V2a1 1 0 00-1-1H6zM2 5a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-1h1v1a2 2 0 01-2 2H2a2 2 0 01-2-2V6a2 2 0 012-2h1v1H2z"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="coord-panel">
+                <div class="coord-empty">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                         width="28" height="28" style="opacity:.3;margin-bottom:8px">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path>
+                    </svg>
+                    <div>3D 视图：点击构件</div>
+                    <div>地图视图：点击位置</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-section sidebar-all-coords">
+            <div class="section-title">全部坐标汇总</div>
+            <div id="all-coords-panel">
+                <div class="all-coords-hint">加载模型后点击下方按钮</div>
+            </div>
+            <button id="btn-load-all" class="btn btn-outline btn-full" disabled>
+                读取全部坐标
+            </button>
+        </div>
+    </aside>
+
+</main>
+
+<!-- APS Viewer SDK -->
+<script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
+<!-- ArcGIS Maps SDK (loaded lazily in JS) -->
+<script src="main.js"></script>
+</body>
+</html>

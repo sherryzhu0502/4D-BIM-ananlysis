@@ -1,0 +1,233 @@
+/* ===== Reset & Variables ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --bg:          #141414;
+    --surface:     #1e1e1e;
+    --surface2:    #282828;
+    --surface3:    #323232;
+    --border:      #3a3a3a;
+    --text:        #e2e2e2;
+    --text-muted:  #7a7a7a;
+    --text-dim:    #555;
+    --primary:     #4a8ff5;
+    --primary-dim: rgba(74,143,245,0.12);
+    --accent:      #f5a623;
+    --success:     #3dd68c;
+    --error:       #ff5c5c;
+    --warn:        #f5a623;
+    --sidebar-l:   270px;
+    --sidebar-r:   330px;
+    --header:      52px;
+    --radius:      6px;
+}
+
+html, body {
+    height: 100vh; overflow: hidden;
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei UI', sans-serif;
+    font-size: 13px; line-height: 1.5;
+}
+
+/* ===== Header ===== */
+.app-header {
+    height: var(--header);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 0 14px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+}
+
+.header-left  { display: flex; align-items: center; gap: 10px; }
+.header-center { display: flex; justify-content: center; }
+.header-right { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
+
+.app-logo { width: 20px; height: 20px; color: var(--primary); flex-shrink: 0; }
+.app-title { font-size: 14px; font-weight: 600; }
+
+.model-name-header {
+    font-size: 12px; color: var(--text-muted);
+    max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* ===== View Tabs ===== */
+.view-tabs {
+    display: flex;
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 3px;
+    border: 1px solid var(--border);
+    gap: 2px;
+}
+
+.view-tab {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 16px;
+    font-size: 12px; font-weight: 500;
+    background: transparent; border: none;
+    border-radius: 6px; color: var(--text-muted);
+    cursor: pointer; transition: all 0.15s;
+    white-space: nowrap;
+}
+
+.view-tab:hover { color: var(--text); }
+.view-tab.active { background: var(--primary); color: #fff; }
+
+/* ===== Layout ===== */
+.app-main { height: calc(100vh - var(--header)); display: flex; overflow: hidden; }
+
+/* ===== Sidebars ===== */
+.sidebar {
+    display: flex; flex-direction: column;
+    background: var(--surface); overflow: hidden; flex-shrink: 0;
+}
+.sidebar-left  { width: var(--sidebar-l); border-right: 1px solid var(--border); }
+.sidebar-right { width: var(--sidebar-r); border-left:  1px solid var(--border); }
+
+.sidebar-section { padding: 14px; border-bottom: 1px solid var(--border); }
+.sidebar-models   { flex: 1; overflow-y: auto; border-bottom: none; }
+.sidebar-all-coords {
+    flex: 1; overflow: hidden; display: flex; flex-direction: column;
+    border-bottom: none; padding-bottom: 14px;
+}
+
+.section-title {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 10px;
+    display: flex; align-items: center; justify-content: space-between;
+}
+
+/* ===== Upload Zone ===== */
+.upload-zone {
+    border: 1.5px dashed var(--border); border-radius: var(--radius);
+    padding: 18px 12px; text-align: center; transition: all 0.2s;
+}
+.upload-zone.dragover { border-color: var(--primary); background: var(--primary-dim); }
+.upload-icon { display: flex; justify-content: center; margin-bottom: 8px; }
+.upload-icon svg { width: 32px; height: 32px; color: var(--text-dim); }
+.upload-text  { font-weight: 500; margin-bottom: 3px; }
+.upload-hint  { color: var(--text-muted); font-size: 12px; margin-bottom: 12px; }
+.upload-formats { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
+.fmt-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 7px;
+    border-radius: 3px; background: var(--surface3); color: var(--text-muted); letter-spacing: 0.5px;
+}
+
+/* ===== Progress ===== */
+.upload-progress { padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--surface2); }
+.progress-info { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+#progress-pct { color: var(--primary); font-weight: 600; }
+.progress-bar { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--primary); border-radius: 2px; transition: width 0.4s; width: 0; }
+.hidden { display: none !important; }
+
+/* ===== Geo Input ===== */
+.geo-display { font-size: 12px; color: var(--text-muted); margin-bottom: 2px; font-family: 'Consolas', monospace; }
+.geo-input-area { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.geo-label { display: flex; flex-direction: column; gap: 3px; font-size: 11px; color: var(--text-muted); }
+.geo-input {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius);
+    color: var(--text); padding: 6px 8px; font-size: 12px; outline: none; transition: border-color 0.15s;
+}
+.geo-input:focus { border-color: var(--primary); }
+.geo-hint { font-size: 11px; color: var(--text-dim); }
+
+/* ===== Models List ===== */
+.models-empty { color: var(--text-dim); font-size: 12px; text-align: center; padding: 16px 0; }
+.models-list  { display: flex; flex-direction: column; gap: 5px; }
+.model-item {
+    display: flex; align-items: center; gap: 9px; padding: 8px 10px;
+    background: var(--surface2); border-radius: var(--radius);
+    border: 1px solid transparent; cursor: pointer; transition: all 0.15s;
+}
+.model-item:hover { border-color: var(--border); }
+.model-item.active { border-color: var(--primary); background: var(--primary-dim); }
+.model-item-icon { font-size: 18px; flex-shrink: 0; line-height: 1; }
+.model-item-info { flex: 1; min-width: 0; }
+.model-item-name { font-size: 12px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.model-item-status { font-size: 11px; margin-top: 2px; color: var(--text-muted); }
+.s-pending { color: var(--warn); }
+.s-success { color: var(--success); }
+.s-error   { color: var(--error); }
+
+/* ===== Center View Panel ===== */
+.viewer-wrapper { flex: 1; position: relative; overflow: hidden; }
+
+.view-pane {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+}
+
+/* APS Viewer 本身的背景 */
+#viewer { background: #0d1117; }
+
+/* ArcGIS Map */
+#map-container { background: #1a2535; }
+
+/* 两个面板共用的空状态 */
+.viewer-empty, .map-empty {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    color: var(--text-dim); pointer-events: none; gap: 6px;
+}
+.viewer-empty-icon { width: 60px; height: 60px; opacity: 0.15; margin-bottom: 8px; }
+.viewer-empty-title { font-size: 14px; font-weight: 500; color: var(--text-muted); }
+.viewer-empty-sub   { font-size: 12px; }
+
+/* ===== Buttons ===== */
+.btn {
+    padding: 6px 14px; border-radius: var(--radius); border: none;
+    cursor: pointer; font-size: 12px; font-weight: 500;
+    transition: all 0.15s; outline: none; white-space: nowrap;
+}
+.btn:disabled { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: #3a7ee4; }
+.btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn-outline:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+.btn-full { width: 100%; margin-top: 8px; flex-shrink: 0; }
+.btn-icon {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-muted); padding: 3px 5px; border-radius: 4px; line-height: 0; transition: all 0.15s;
+}
+.btn-icon:hover:not(:disabled) { color: var(--text); background: var(--surface3); }
+.btn-icon:disabled { opacity: 0.25; cursor: not-allowed; }
+
+/* ===== Coordinate Panel ===== */
+.coord-empty {
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; color: var(--text-dim); padding: 24px 10px; line-height: 1.9; font-size: 12px;
+}
+.coord-header { margin-bottom: 10px; }
+.coord-name   { font-weight: 600; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.coord-meta   { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.coord-table  { width: 100%; border-collapse: collapse; font-size: 12px; }
+.coord-table th { text-align: left; padding: 5px 8px; background: var(--surface2); color: var(--text-muted); font-weight: 600; border-bottom: 1px solid var(--border); font-size: 11px; }
+.coord-table td { padding: 5px 8px; border-bottom: 1px solid rgba(58,58,58,0.4); }
+.coord-table tr:last-child td { border-bottom: none; }
+.coord-table tr.primary td:first-child { color: var(--primary); font-weight: 500; }
+.coord-table tr.primary td:last-child  { color: var(--accent); font-family: 'Consolas', monospace; }
+.coord-table tr:not(.primary) td:last-child { font-family: 'Consolas', monospace; color: #8ec8f5; font-size: 11px; }
+.coord-group { background: var(--surface2); padding: 4px 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); font-weight: 700; }
+
+/* ===== All Coords ===== */
+.all-coords-hint { color: var(--text-dim); font-size: 12px; text-align: center; padding: 16px 0 8px; }
+#all-coords-panel { flex: 1; overflow-y: auto; margin-bottom: 4px; }
+.all-table-wrap { overflow-x: auto; }
+.all-coords-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.all-coords-table thead th { position: sticky; top: 0; background: var(--surface2); padding: 5px 6px; text-align: left; color: var(--text-muted); border-bottom: 1px solid var(--border); font-weight: 600; white-space: nowrap; }
+.all-coords-table td { padding: 4px 6px; border-bottom: 1px solid rgba(58,58,58,0.3); font-family: 'Consolas', monospace; white-space: nowrap; }
+.all-coords-table td:nth-child(2) { font-family: inherit; max-width: 90px; overflow: hidden; text-overflow: ellipsis; }
+.all-coords-table tbody tr:hover td { background: var(--primary-dim); }
+.all-coords-count { font-size: 11px; color: var(--text-muted); padding: 6px 0 8px; text-align: center; }
+.more-hint { text-align: center; color: var(--text-dim); font-size: 11px; padding: 6px; }
+
+/* ===== ArcGIS SDK overrides ===== */
+.esri-attribution__powered-by { display: none; }
+.esri-view-surface--inset-outline:focus::after { outline: none; }
